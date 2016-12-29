@@ -1,13 +1,16 @@
 #ifndef JEU_H_INCLUDED
 #define JEU_H_INCLUDED
 
-#define WIN_H 20
-#define WIN_W 70
+#include <stdio.h>
+#include <stdlib.h>
 
-void clear_console();
-void render(char screen[WIN_H][WIN_W]);
-void clear_screen(char screen[WIN_H][WIN_W]);
+#include "console.h"
+#include "pile.h"
 
+/*Fonctions pratiques*/
+int positive_modulo(int i, int n);
+
+/*Jeu*/
 struct s_jeu
 {
     int n; /*taille du plateau*/
@@ -20,5 +23,6 @@ typedef struct s_jeu s_jeu;
 void j_init(s_jeu* jeu, int n);
 void j_quit(s_jeu* jeu);
 void j_draw_board(s_jeu* jeu);
+int j_tour(s_jeu* jeu, int player);
 
 #endif // JEU_H_INCLUDED

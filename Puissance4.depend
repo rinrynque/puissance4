@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1483049889 source:c:\users\vianney\documents\perso\projets\puissance4\main.c
+1483052600 source:c:\users\vianney\documents\perso\projets\puissance4\main.c
 	<stdio.h>
 	<stdlib.h>
 	"pile.h"
@@ -14,11 +14,19 @@
 	<stdlib.h>
 	"pile.h"
 
-1483049847 source:c:\users\vianney\documents\perso\projets\puissance4\jeu.c
-	<stdio.h>
-	<stdlib.h>
-	"pile.h"
+1483053888 source:c:\users\vianney\documents\perso\projets\puissance4\jeu.c
 	"jeu.h"
 
-1483049597 c:\users\vianney\documents\perso\projets\puissance4\jeu.h
+1483053290 c:\users\vianney\documents\perso\projets\puissance4\jeu.h
+	<stdio.h>
+	<stdlib.h>
+	"console.h"
+	"pile.h"
+
+1483052834 c:\users\vianney\documents\perso\projets\puissance4\console.h
+
+1483053123 source:c:\users\vianney\documents\perso\projets\puissance4\console.c
+	<stdio.h>
+	<stdlib.h>
+	"console.h"
 

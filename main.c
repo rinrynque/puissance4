@@ -12,6 +12,7 @@ int main()
     s_jeu jeu;
     j_init(&jeu,5);
     p_push(&(jeu.board[2][1]),1);
+    while(j_tour(&jeu,1)!=-1);
     j_draw_board(&jeu);
     j_quit(&jeu);
     return 0;
