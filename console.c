@@ -11,6 +11,13 @@ void clear_console()
     printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 }
 
+void drawchar(char screen[WIN_H][WIN_W],int r, int c, char tile)
+{
+    if(r>=0&&r<WIN_H&&c>=0&&c<WIN_W)
+    {
+        screen[r][c]=tile;
+    }
+}
 void render(char screen[WIN_H][WIN_W])
 {
     int i,j;

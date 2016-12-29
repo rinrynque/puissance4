@@ -45,10 +45,13 @@ void j_draw_board(s_jeu* jeu)
         {
             if( !p_isEmpty(&(jeu->board[i][j])) )
             {
-                jeu->screen[i*3+1][j*3+1] = TILES[p_peak(&((jeu->board)[i][j]))];
+                drawchar(jeu->screen,i*3+1,j*3+1, TILES[p_peak(&((jeu->board)[i][j]))]);
             }
         }
     }
+    /*On dessine aussi la petite ligne de kéké en dessous*/
+    for(i=0;i<jeu->n*3;i++)
+        drawchar(jeu->screen,jeu->n*3, i, '-');
 }
 
 void j_draw_pile(s_jeu* jeu, int r, int c)
@@ -56,11 +59,11 @@ void j_draw_pile(s_jeu* jeu, int r, int c)
     Pile* p = &(jeu->board[r][c]);
     int i;
     for(i=0;i<3;i++)
-        jeu->screen[WIN_H-1][WIN_W-4+i] = '-';
+        drawchar(jeu->screen,jeu->n*3,WIN_W-4+i, '-');
 
     for(i=0; i<p->it; i++)
     {
-        jeu->screen[WIN_H-i-2][WIN_W-3] = TILES[p->tab[i]];
+        drawchar(jeu->screen,jeu->n*3-i-1,WIN_W-3,TILES[p->tab[i]]);
     }
 }
 
@@ -75,10 +78,10 @@ int j_tour(s_jeu* jeu, int player)
         /*
         On dessine un curseur autour de la pile selectionnee, il y a 4 '+' à ecrire
         */
-        jeu->screen[r*3][c*3+1] = '+';
-        jeu->screen[r*3+1][c*3] = '+';
-        jeu->screen[r*3+1][c*3+2] = '+';
-        jeu->screen[r*3+2][c*3+1] = '+';
+        drawchar(jeu->screen, r*3,   c*3+1, '+');
+        drawchar(jeu->screen, r*3+1, c*3,   '+');
+        drawchar(jeu->screen, r*3+1, c*3+2, '+');
+        drawchar(jeu->screen, r*3+2, c*3+1, '+');
         j_draw_board(jeu);
         j_draw_pile(jeu,r,c);
         render(jeu->screen);
@@ -88,6 +91,18 @@ int j_tour(s_jeu* jeu, int player)
         if(in=='p')
         {
             p_push(&(jeu->board[r][c]),player);
+        }
+        else if(in=='r')
+        {
+            if(p_isEmpty(&(jeu->board[r][c])))
+            {
+                printf("La pile est deja vide, vous ne pouvez rien retirer\n");
+                getchar(); /*Pour faire une pause*/
+            }
+            else
+            {
+                p_pop(&(jeu->board[r][c]));
+            }
         }
         else if(in=='i')
         {

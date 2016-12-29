@@ -5,6 +5,7 @@
 #define WIN_W 70
 
 void clear_console();
+void drawchar(char screen[WIN_H][WIN_W],int r, int c, char tile);
 void render(char screen[WIN_H][WIN_W]);
 void clear_screen(char screen[WIN_H][WIN_W]);
 
