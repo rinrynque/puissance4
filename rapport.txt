@@ -1,0 +1,5 @@
+-utilisation de structure pour le jeu
+-utilisation des préfixes
+-utilisation d'un tableau pour écrire dans la console plus facilement et de façon plus modulaire
+-utilisation des regex dans scanf pour une saisie sécurisée:
+ https://openclassrooms.com/courses/la-saisie-securisee-avec-scanf
