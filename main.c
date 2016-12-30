@@ -64,6 +64,7 @@ int main()
                 }
             }
         }
+        check = 0;
 
         if(jeu.options & EARTHQUAKE)
         {
@@ -71,7 +72,7 @@ int main()
             if(!(jeu.options & TRIDIM))
             {
                 check = j_checkUp(&jeu);
-                if (check)
+                if (check != 0)
                 {
                     if (check==3)
                         printf("Deux gagnants ! Il n\'y aura pas de jaloux\n");

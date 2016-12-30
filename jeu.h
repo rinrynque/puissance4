@@ -17,6 +17,7 @@
 
 #define COLLAPSED 1
 #define PLAYED 2
+#define ALIGNED 4 /* Ce flag a servi a des fins de debuggage */
 
 /*Fonctions pratiques*/
 int positive_modulo(int i, int n);
@@ -40,6 +41,7 @@ int j_turn(s_jeu* jeu, int player);
 
 int j_follow3D(s_jeu* jeu, int x, int y, int z, int dx, int dy, int dz, int piece);
 int j_check3D(s_jeu* jeu);
+
 int j_followUp(s_jeu* jeu, int x, int y, int dx, int dy, int piece);
 int j_checkUp(s_jeu* jeu);
 

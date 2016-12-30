@@ -94,6 +94,11 @@ void j_draw_events(s_jeu* jeu)
                 drawchar(jeu->screen, i*3+2, j*3+1, '*');
                 drawchar(jeu->screen, i*3+2, j*3+2, '*');
             }
+            if(jeu->events[i][j] & ALIGNED) /* Si le flag ALIGNED est activé sur la case */
+            {
+                drawchar(jeu->screen, i*3+1, j*3+1,   '@');
+                jeu->events[i][j] &= ~ALIGNED;
+            }
         }
     }
 }
@@ -202,6 +207,9 @@ void j_earthQUAKE(s_jeu* jeu)
 int j_follow3D(s_jeu* jeu, int x, int y, int z, int dx, int dy, int dz, int piece)
 {
     int length = 0;
+    x += dx;
+    y += dy;
+    z += dz;
 
     while(x>=0 && y>=0 && z>=0
           && x<jeu->n && y<jeu->n
@@ -237,7 +245,7 @@ int j_check3D(s_jeu* jeu)
                     for(k=0;k<9;k++)
                     {
                         int align = j_follow3D(jeu,i,j,jeu->board[i][j].it-1,dxs[k],dys[k], dzs[k], player)
-                                    - 1 + j_follow3D(jeu,i,j,jeu->board[i][j].it-1,-dxs[k],-dys[k],-dzs[k], player);
+                                    + 1 + j_follow3D(jeu,i,j,jeu->board[i][j].it-1,-dxs[k],-dys[k],-dzs[k], player);
                         if(align >= 4)
                         {
                             clear_console();
@@ -264,9 +272,12 @@ int j_check3D(s_jeu* jeu)
 int j_followUp(s_jeu* jeu, int x, int y, int dx, int dy, int piece)
 {
     int length = 0;
+    x += dx;
+    y += dy;
 
     while(x>=0 && y>=0
           && x<jeu->n && y<jeu->n
+          && !p_isEmpty(&(jeu->board[x][y]))
           && p_peak(&(jeu->board[x][y])) == piece)
     {
         length++;
@@ -299,17 +310,18 @@ int j_checkUp(s_jeu* jeu)
                     for(k=0;k<4;k++)
                     {
                         int align = j_followUp(jeu,i,j,dxs[k],dys[k], player)
-                                    - 1 + j_followUp(jeu,i,j,-dxs[k],-dys[k], player);
-                        if(align >= 4)
+                                    + 1 + j_followUp(jeu,i,j,-dxs[k],-dys[k], player); /* On ajoute 1 pour prendre en compte la case courante*/
+
+
+                        if(align >= jeu->n)
                         {
                             clear_console();
                             clear_screen(jeu->screen);
                             j_draw_board(jeu);
-                            j_draw_events(jeu);
                             render(jeu->screen);
                             printf("Le joueur %d gagne !\n", player);
                             getchar();
-                            if (!etat)
+                            if (etat==0)
                             {
                                 etat = player;
                             }
