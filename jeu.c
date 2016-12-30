@@ -1,22 +1,26 @@
 #include "jeu.h"
 
-const char TILES[2] = {' ','o','x'};
+const char TILES[3] = " ox";
 
 int positive_modulo(int i, int n)
 {
     return (i % n + n) % n;
 }
 
-void j_init(s_jeu* jeu, int n)
+void j_init(s_jeu* jeu, int n, unsigned int options)
 {
     int i,j;
+    jeu->options = options;
     jeu->n = n;
     jeu->board = (Pile**) malloc(n * sizeof(Pile*));
+    jeu->collapses = (int**) malloc(n * sizeof(int*));
     for (i=0; i<n; i++)
     {
         jeu->board[i] = (Pile *)malloc(n * sizeof(Pile));
+        jeu->collapses[i] = (int*)malloc(n * sizeof(int));
         for (j=0; j<n; j++)
         {
+            jeu->collapses[i][j]=0;
             p_init(&(jeu->board[i][j]));
         }
     }
@@ -47,6 +51,20 @@ void j_draw_board(s_jeu* jeu)
             {
                 drawchar(jeu->screen,i*3+1,j*3+1, TILES[p_peak(&((jeu->board)[i][j]))]);
             }
+            if(jeu->collapses[i][j])
+            {
+
+                drawchar(jeu->screen, i*3, j*3,   '*');
+                drawchar(jeu->screen, i*3, j*3+1, '*');
+                drawchar(jeu->screen, i*3, j*3+2, '*');
+
+                drawchar(jeu->screen, i*3+1, j*3,   '*');
+                drawchar(jeu->screen, i*3+1, j*3+2, '*');
+
+                drawchar(jeu->screen, i*3+2,   j*3, '*');
+                drawchar(jeu->screen, i*3+2, j*3+1, '*');
+                drawchar(jeu->screen, i*3+2, j*3+2, '*');
+            }
         }
     }
     /*On dessine aussi la petite ligne de kéké en dessous*/
@@ -58,16 +76,18 @@ void j_draw_pile(s_jeu* jeu, int r, int c)
 {
     Pile* p = &(jeu->board[r][c]);
     int i;
+    int x = jeu->n*3+1; /*x et y sont les coordonnees d affichage de la pile (bas gauche)*/
+    int y = jeu->n*3;
     for(i=0;i<3;i++)
-        drawchar(jeu->screen,jeu->n*3,WIN_W-4+i, '-');
+        drawchar(jeu->screen,y,x+i, '-');
 
     for(i=0; i<p->it; i++)
     {
-        drawchar(jeu->screen,jeu->n*3-i-1,WIN_W-3,TILES[p->tab[i]]);
+        drawchar(jeu->screen,y-i-1,x+1,TILES[p->tab[i]]);
     }
 }
 
-int j_tour(s_jeu* jeu, int player)
+int j_turn(s_jeu* jeu, int player)
 {
     char in = ' ';
     int r = 0,c = 0;
@@ -78,12 +98,12 @@ int j_tour(s_jeu* jeu, int player)
         /*
         On dessine un curseur autour de la pile selectionnee, il y a 4 '+' à ecrire
         */
+        j_draw_board(jeu);
+        j_draw_pile(jeu,r,c);
         drawchar(jeu->screen, r*3,   c*3+1, '+');
         drawchar(jeu->screen, r*3+1, c*3,   '+');
         drawchar(jeu->screen, r*3+1, c*3+2, '+');
         drawchar(jeu->screen, r*3+2, c*3+1, '+');
-        j_draw_board(jeu);
-        j_draw_pile(jeu,r,c);
         render(jeu->screen);
 
         printf("C'est au tour du joueur %d\n", player);
@@ -91,6 +111,7 @@ int j_tour(s_jeu* jeu, int player)
         if(in=='p')
         {
             p_push(&(jeu->board[r][c]),player);
+            return 1;
         }
         else if(in=='r')
         {
@@ -102,6 +123,7 @@ int j_tour(s_jeu* jeu, int player)
             else
             {
                 p_pop(&(jeu->board[r][c]));
+                return 0;
             }
         }
         else if(in=='i')
@@ -126,5 +148,31 @@ int j_tour(s_jeu* jeu, int player)
         }
         r = positive_modulo(r, jeu->n);
         c = positive_modulo(c, jeu->n);
+    }
+}
+
+void j_earthQUAKE(s_jeu* jeu)
+{
+    int i,j;
+    for(i=0;i<jeu->n;i++)
+    {
+        for(j=0;j<jeu->n;j++)
+        {
+            jeu->collapses[i][j]=0;
+            int h = jeu->board[i][j].it;
+            if(h>0 && (rand()/(double)RAND_MAX) < 1.0-pow(2.0,-h/(2.0*jeu->n)))
+            {
+                /*Effondrement*/
+                jeu->collapses[i][j]=1;
+                int k = rand()%h+1;
+                int ip;
+                for(ip = 0; ip<k;ip++)
+                {
+                    p_pop(&(jeu->board[i][j]));
+                }
+                printf("Une pile s'est effondree de %d etages!\n",k);
+                getchar(); /*Pour faire une pause*/
+            }
+        }
     }
 }
