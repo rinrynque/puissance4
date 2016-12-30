@@ -74,6 +74,7 @@ int main()
                 c = prompt_char();
                 if (c == 'n')
                 {
+                    j_quit(&jeu);
                     return 0;
                 }
             }
@@ -97,6 +98,7 @@ int main()
                         c = prompt_char();
                         if (c == 'n')
                         {
+                            j_quit(&jeu);
                             return 0;
                         }
                     }

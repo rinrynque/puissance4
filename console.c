@@ -46,6 +46,7 @@ void clear_screen(char screen[WIN_H][WIN_W])
 int clean_stdin()
 {
     scanf ("%*[^\n]");
+    getchar ();
     return 1;
 }
 
@@ -54,7 +55,6 @@ char prompt_char()
     char buffer[2];
     scanf ("%1s", buffer);
     clean_stdin();
-    getchar ();
     return buffer[0];
 }
 int promptUINT()
