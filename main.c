@@ -13,15 +13,24 @@ int main()
     rand();rand();rand();rand();
 
     s_jeu jeu;
-    j_init(&jeu,5, EARTHQUAKE);
 
-    p_push(&(jeu.board[2][1]),1);
+    j_init(&jeu,5, TRIDIM);
+
     int tour = 0;
     while(j_turn(&jeu,tour%2+1)!=-1)
     {
-        if(jeu.options | EARTHQUAKE)
+        if(jeu.options & EARTHQUAKE)
         {
             j_earthQUAKE(&jeu);
+        }
+
+        if(jeu.options & TRIDIM)
+        {
+            j_check3D(&jeu);
+        }
+        else
+        {
+            j_checkUp(&jeu);
         }
         tour++;
     }

@@ -106,7 +106,7 @@ int j_turn(s_jeu* jeu, int player)
         drawchar(jeu->screen, r*3+2, c*3+1, '+');
         render(jeu->screen);
 
-        printf("C'est au tour du joueur %d\n", player);
+        printf("C'est au tour du joueur %d (joue les %c)\n", player, TILES[player]);
         in = prompt_char();
         if(in=='p')
         {
@@ -175,4 +175,14 @@ void j_earthQUAKE(s_jeu* jeu)
             }
         }
     }
+}
+
+
+int j_check3D(s_jeu* jeu)
+{
+    return 0;
+}
+int j_checkUp(s_jeu* jeu)
+{
+    return 0;
 }

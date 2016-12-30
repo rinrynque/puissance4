@@ -10,7 +10,7 @@
 
 #define NOTHING 0
 #define EARTHQUAKE 1
-#define TRIDIM 2
+#define TRIDIM 2 /*Si ce flag n'est pas active, on utilise la variante vue de dessus*/
 
 /*Fonctions pratiques*/
 int positive_modulo(int i, int n);
@@ -31,6 +31,9 @@ void j_init(s_jeu* jeu, int n, unsigned int options);
 void j_quit(s_jeu* jeu);
 void j_draw_board(s_jeu* jeu);
 int j_turn(s_jeu* jeu, int player);
+
+int j_check3D(s_jeu* jeu);
+int j_checkUp(s_jeu* jeu);
 
 void j_earthQUAKE(s_jeu* jeu);
 
