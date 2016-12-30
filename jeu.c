@@ -13,14 +13,14 @@ void j_init(s_jeu* jeu, int n, unsigned int options)
     jeu->options = options;
     jeu->n = n;
     jeu->board = (Pile**) malloc(n * sizeof(Pile*));
-    jeu->collapses = (int**) malloc(n * sizeof(int*));
+    jeu->events = (int**) malloc(n * sizeof(int*));
     for (i=0; i<n; i++)
     {
         jeu->board[i] = (Pile *)malloc(n * sizeof(Pile));
-        jeu->collapses[i] = (int*)malloc(n * sizeof(int));
+        jeu->events[i] = (int*)malloc(n * sizeof(int));
         for (j=0; j<n; j++)
         {
-            jeu->collapses[i][j]=0;
+            jeu->events[i][j]=0;
             p_init(&(jeu->board[i][j]));
         }
     }
@@ -51,20 +51,6 @@ void j_draw_board(s_jeu* jeu)
             {
                 drawchar(jeu->screen,i*3+1,j*3+1, TILES[p_peak(&((jeu->board)[i][j]))]);
             }
-            if(jeu->collapses[i][j])
-            {
-
-                drawchar(jeu->screen, i*3, j*3,   '*');
-                drawchar(jeu->screen, i*3, j*3+1, '*');
-                drawchar(jeu->screen, i*3, j*3+2, '*');
-
-                drawchar(jeu->screen, i*3+1, j*3,   '*');
-                drawchar(jeu->screen, i*3+1, j*3+2, '*');
-
-                drawchar(jeu->screen, i*3+2,   j*3, '*');
-                drawchar(jeu->screen, i*3+2, j*3+1, '*');
-                drawchar(jeu->screen, i*3+2, j*3+2, '*');
-            }
         }
     }
     /*On dessine aussi la petite ligne de kéké en dessous*/
@@ -87,23 +73,57 @@ void j_draw_pile(s_jeu* jeu, int r, int c)
     }
 }
 
-int j_turn(s_jeu* jeu, int player)
+void j_draw_events(s_jeu* jeu)
 {
-    char in = ' ';
-    int r = 0,c = 0;
-    while(1)
+    int i,j;
+    for(i=0;i<jeu->n;i++)
     {
-        clear_console();
-        clear_screen(jeu->screen);
-        /*
-        On dessine un curseur autour de la pile selectionnee, il y a 4 '+' à ecrire
-        */
-        j_draw_board(jeu);
-        j_draw_pile(jeu,r,c);
+        for(j=0;j<jeu->n;j++)
+        {
+            if(jeu->events[i][j] & COLLAPSE) /* Si le flag COLLAPSE est activé sur la case */
+            {
+
+                drawchar(jeu->screen, i*3, j*3,   '*');
+                drawchar(jeu->screen, i*3, j*3+1, '*');
+                drawchar(jeu->screen, i*3, j*3+2, '*');
+
+                drawchar(jeu->screen, i*3+1, j*3,   '*');
+                drawchar(jeu->screen, i*3+1, j*3+2, '*');
+
+                drawchar(jeu->screen, i*3+2,   j*3, '*');
+                drawchar(jeu->screen, i*3+2, j*3+1, '*');
+                drawchar(jeu->screen, i*3+2, j*3+2, '*');
+            }
+        }
+    }
+}
+void j_draw_cursor(s_jeu* jeu,int r, int c)
+{
         drawchar(jeu->screen, r*3,   c*3+1, '+');
         drawchar(jeu->screen, r*3+1, c*3,   '+');
         drawchar(jeu->screen, r*3+1, c*3+2, '+');
         drawchar(jeu->screen, r*3+2, c*3+1, '+');
+}
+
+int j_turn(s_jeu* jeu, int player)
+{
+    char in = ' ';
+    int r = 0,c = 0;
+    int fallout = FALLOUT_TIME;
+    while(1)
+    {
+        clear_console();
+        clear_screen(jeu->screen);
+        j_draw_board(jeu);
+        j_draw_pile(jeu,r,c);
+
+        if (fallout != 0)
+        {
+            j_draw_events(jeu);
+            fallout--;
+        }
+
+        j_draw_cursor(jeu,r,c);
         render(jeu->screen);
 
         printf("C'est au tour du joueur %d (joue les %c)\n", player, TILES[player]);
@@ -111,6 +131,7 @@ int j_turn(s_jeu* jeu, int player)
         if(in=='p')
         {
             p_push(&(jeu->board[r][c]),player);
+            jeu->events[r][c] |= PLAYED;
             return 1;
         }
         else if(in=='r')
@@ -123,6 +144,7 @@ int j_turn(s_jeu* jeu, int player)
             else
             {
                 p_pop(&(jeu->board[r][c]));
+                jeu->events[r][c] |= PLAYED; /*On ajoute sur la case le flag PLAYED */
                 return 0;
             }
         }
@@ -158,12 +180,12 @@ void j_earthQUAKE(s_jeu* jeu)
     {
         for(j=0;j<jeu->n;j++)
         {
-            jeu->collapses[i][j]=0;
+            jeu->events[i][j] &= ~COLLAPSE; /* Cette ligne permet de remettre le flag COLLAPSE à 0*/
             int h = jeu->board[i][j].it;
             if(h>0 && (rand()/(double)RAND_MAX) < 1.0-pow(2.0,-h/(2.0*jeu->n)))
             {
                 /*Effondrement*/
-                jeu->collapses[i][j]=1;
+                jeu->events[i][j] |= COLLAPSE; /* Cette ligne permet de remettre le flag COLLAPSE à 1*/
                 int k = rand()%h+1;
                 int ip;
                 for(ip = 0; ip<k;ip++)
@@ -177,10 +199,57 @@ void j_earthQUAKE(s_jeu* jeu)
     }
 }
 
+int j_follow3D(s_jeu* jeu, int x, int y, int z, int dx, int dy, int dz, int piece)
+{
+    int length = 0;
+
+    while(x>=0 && y>=0 && z>=0
+          && x<jeu->n && y<jeu->n
+          && z < jeu->board[x][y].it
+          && (jeu->board[x][y]).tab[z] == piece)
+    {
+        length++;
+        x += dx;
+        y += dy;
+        z += dz;
+    }
+    return length;
+}
 
 int j_check3D(s_jeu* jeu)
 {
-    return 0;
+    int i,j;
+    const int dxs[9]={1, 1, 0, -1, 0, 1, 1, 0, -1};
+    const int dys[9]={0, 1, 1, 1,  0, 0, 1, 1,  1};
+    const int dzs[9]={0, 0, 0, 0,  1, 1, 1, 1,  1};
+    for(i=0;i<jeu->n;i++)
+    {
+        for(j=0;j<jeu->n;j++)
+        {
+            if(jeu->events[i][j] & PLAYED) /* Si le flag PLAYED est activé sur la case */
+            {
+                /*On doit partir dans 9 directions différentes, a chaque fois des deux côtés */
+
+                if(!p_isEmpty(&(jeu->board[i][j])))
+                {
+                    int player = p_peak(&(jeu->board[i][j]));
+                    int k;
+                    for(k=0;k<9;k++)
+                    {
+                        int align = j_follow3D(jeu,i,j,jeu->board[i][j].it-1,dxs[k],dys[k], dzs[k], player)
+                                    - 1 + j_follow3D(jeu,i,j,jeu->board[i][j].it-1,-dxs[k],-dys[k],-dzs[k], player);
+                        if(align >= 4)
+                        {
+                            return player;
+                        }
+                    }
+                }
+
+                jeu->events[i][j] &= ~PLAYED; /* On a fait la verification, on enleve le flag */
+            }
+        }
+    }
+    return 0; /* Il n'y a pas de vainqueur */
 }
 int j_checkUp(s_jeu* jeu)
 {

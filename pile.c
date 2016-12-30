@@ -5,7 +5,7 @@
 
 /* @requires : pile* à initialiser
 *  @assigns : p->it
-*  @ensures : apprend à lire*/
+*  @ensures : initialise la pile*/
 void p_init(Pile* p)
 {
     p->it=0;
@@ -67,25 +67,5 @@ void p_disp(Pile* p)
         printf(" %d ", p->tab[i]);
     }
     printf("]\n");
-}
-
-/* @requires : pile* non vide
-*  @assigns : *p
-*  @ensures : duplique l'element du dessus*/
-void p_duplicate(Pile* p)
-{
-    int c=p_pop(p);
-    p_push(p,c);
-    p_push(p,c);
-}
-
-/* @requires : pile*
-*  @assigns : *p
-*  @ensures : cf question 3.1*/
-void pile_n(Pile* p)
-{
-    int c = p_pop(p);
-    p_push(p,c);
-    p_push(p,c-1);
 }
 

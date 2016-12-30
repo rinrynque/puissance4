@@ -5,8 +5,6 @@
 #include "pile.h"
 #include "jeu.h"
 
-
-
 int main()
 {
     srand((unsigned)time(NULL));
@@ -26,7 +24,14 @@ int main()
 
         if(jeu.options & TRIDIM)
         {
-            j_check3D(&jeu);
+            int check = j_check3D(&jeu);
+            if(check)
+            {
+                printf("Le joueur %d gagne !\n", check);
+                getchar();
+                j_quit(&jeu);
+                return 0;
+            }
         }
         else
         {
@@ -34,7 +39,8 @@ int main()
         }
         tour++;
     }
-
+    printf("\n\nAu revoir !\n\nJoueur %d abandonne\nJoueur %d est vainqueur par forfait !\n",tour%2+1, (tour+1)%2+1);
+    getchar();
     j_quit(&jeu);
     return 0;
 }

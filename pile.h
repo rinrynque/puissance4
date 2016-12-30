@@ -18,8 +18,6 @@ void p_push(Pile*, int);
 int p_pop(Pile*);
 int p_peak(Pile*);
 void p_disp(Pile*);
-void p_duplicate(Pile*);
-void pile_n(Pile*);
 
 
 #endif // PILE_H_INCLUDED
