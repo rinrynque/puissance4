@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -ansi
-LDFLAGS=
+LDFLAGS=-lm
 EXEC=puissance4
 SRC= $(wildcard *.c)
 OBJ= $(SRC:.c=.o)
@@ -16,7 +16,7 @@ puissance4: $(OBJ)
 %.o: %.c
 	$(CC) -o $@ -c $< $(CFLAGS)
 
-.PHONY: clean mrproper
+.PHONY: clean mrproper cleancodeblocks
 
 clean:
 	rm -rf *.o 
