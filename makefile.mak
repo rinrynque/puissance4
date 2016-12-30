@@ -13,7 +13,7 @@ puissance4: $(OBJ)
 pile.o: pile.h
 console.o: console.h
 jeu.o: jeu.h
-main.o: pile.h jeu.h
+main.o: jeu.h
 
 %.o: %.c
 	$(CC) -o $@ -c $< $(CFLAGS)
@@ -21,7 +21,10 @@ main.o: pile.h jeu.h
 .PHONY: clean mrproper
 
 clean:
-	rm -rf *.o
+	rm -rf *.o 
 
 mrproper: clean
 	rm -rf $(EXEC)
+	
+cleancodeblocks: clean
+	rm -rf $(EXEC) *.layout *.depend bin obj
