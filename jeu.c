@@ -129,9 +129,9 @@ int j_turn(s_jeu* jeu, int player)
         }
 
         j_draw_cursor(jeu,r,c);
-        render(jeu->screen);
+        render(jeu->screen, jeu->n*3+2);
 
-        printf("C'est au tour du joueur %d (joue les %c)\n", player, TILES[player]);
+        printf("C'est au tour du joueur %d (joue les %c) (h : afficher les commandes)\n", player, TILES[player]);
         in = prompt_char();
         if(in=='p')
         {
@@ -169,6 +169,20 @@ int j_turn(s_jeu* jeu, int player)
         {
             c++;
         }
+        else if(in=='h')
+        {
+            printf("\n");
+            printf("   ^   \n");
+            printf("   i   \n");
+            printf("<j   l>\n");
+            printf("   k   \n");
+            printf("   v   \n");
+            printf("\n");
+            printf("p : poser un jeton\n");
+            printf("r : retirer un jeton\n");
+            printf("q : quitter :-(\n\n\n");
+            getchar();
+        }
         else if(in=='q')
         {
             return -1;
@@ -190,7 +204,7 @@ void j_earthQUAKE(s_jeu* jeu)
             if(h>0 && (rand()/(double)RAND_MAX) < 1.0-pow(2.0,-h/(2.0*jeu->n)))
             {
                 /*Effondrement*/
-                jeu->events[i][j] |= COLLAPSED; /* Cette ligne permet de remettre le flag COLLAPSED à 1*/
+                jeu->events[i][j] |= COLLAPSED; /* Cette ligne permet de mettre le flag COLLAPSED à 1*/
                 int k = rand()%h+1;
                 int ip;
                 for(ip = 0; ip<k;ip++)
@@ -246,13 +260,13 @@ int j_check3D(s_jeu* jeu)
                     {
                         int align = j_follow3D(jeu,i,j,jeu->board[i][j].it-1,dxs[k],dys[k], dzs[k], player)
                                     + 1 + j_follow3D(jeu,i,j,jeu->board[i][j].it-1,-dxs[k],-dys[k],-dzs[k], player);
-                        if(align >= 4)
+                        if(align >= jeu->n)
                         {
                             clear_console();
                             clear_screen(jeu->screen);
                             j_draw_board(jeu);
                             j_draw_events(jeu);
-                            render(jeu->screen);
+                            render(jeu->screen, jeu->n*3+2);
 
                             printf("Le joueur %d gagne !\n", player);
                             getchar();
@@ -318,7 +332,7 @@ int j_checkUp(s_jeu* jeu)
                             clear_console();
                             clear_screen(jeu->screen);
                             j_draw_board(jeu);
-                            render(jeu->screen);
+                            render(jeu->screen, jeu->n*3+2);
                             printf("Le joueur %d gagne !\n", player);
                             getchar();
                             if (etat==0)

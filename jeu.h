@@ -8,16 +8,16 @@
 #include "console.h"
 #include "pile.h"
 
-#define FALLOUT_TIME 4 /*-1 pour afficher durant tout le tour les effondrements, 0 pour desactiver l'affichage*/
+#define FALLOUT_TIME 3 /*Nombre de frames que restent les debris (seisme) -1 pour afficher durant tout le tour les effondrements, 0 pour desactiver l'affichage*/
 
 /*Définition des flags*/
 #define NOTHING 0
 #define EARTHQUAKE 1
-#define TRIDIM 2 /*Si ce flag n'est pas active, on utilise la variante vue de dessus*/
+#define TRIDIM 2 /*Si ce flag n'est pas activé, on utilise la variante vue de dessus*/
 
 #define COLLAPSED 1
 #define PLAYED 2
-#define ALIGNED 4 /* Ce flag a servi a des fins de debuggage */
+#define ALIGNED 4 /* Ce flag a servi a des fins de deboguage */
 
 /*Fonctions pratiques*/
 int positive_modulo(int i, int n);
@@ -27,7 +27,7 @@ struct s_jeu
 {
     int n; /*taille du plateau*/
     Pile **board; /*plateau de jeu*/
-    int **events; /*la carte des effondrements*/
+    int **events; /*la carte des evenements du tour (flags)*/
     char screen[WIN_H][WIN_W]; /*l'ecran de rendu*/
     unsigned int options; /*les options sont representes par les flags*/
 };

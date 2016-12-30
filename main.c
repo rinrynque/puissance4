@@ -7,10 +7,20 @@
 
 int main()
 {
-    printf("Bienvenue dans le Jeu\n");
+    printf("=======================\n");
+    printf("=Bienvenue dans le Jeu=\n");
+    printf("=======================\n");
     srand((unsigned)time(NULL));
     rand();rand();rand();rand();
     getchar();
+    int n=0;
+    printf(" Choisissez la taille du plateau");
+    n = promptUINT();
+
+    if( n*3 + 5>WIN_H || n*3 + 5 > WIN_W)
+    {
+        printf("Attention ! La taille choisie est grande pour l\'affichage\nTout le plateau risque de ne pas etre visible.\nPlus d\informations dans le rapport.\n\n");
+    }
 
     int choix = 0;
     {
@@ -19,6 +29,8 @@ int main()
         {
             printf("Quelle variante souhaitez-vous jouer?\nVariante vue de dessus : 1\nVariante 3D : 2\n");
             c = prompt_char();
+            if (c=='q')
+                return 0;
         }
         if(c=='2')
             choix |= TRIDIM;
@@ -28,6 +40,8 @@ int main()
         {
             printf("Voulez-vous activer l\'option SEISME (o/n)?\n");
             c = prompt_char();
+            if (c=='q')
+                return 0;
         }
         if(c=='o')
             choix |= EARTHQUAKE;
@@ -35,7 +49,7 @@ int main()
     }
 
     s_jeu jeu;
-    j_init(&jeu,5, choix);
+    j_init(&jeu,n, choix);
 
     int tour = 0;
     while(j_turn(&jeu,tour%2+1)!=-1)

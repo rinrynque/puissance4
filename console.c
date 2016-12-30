@@ -5,11 +5,8 @@
 
 void clear_console()
 {
-    printf("\n\n\n");
-    /*printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-    printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");*/
 }
 
 void drawchar(char screen[WIN_H][WIN_W],int r, int c, char tile)
@@ -19,12 +16,12 @@ void drawchar(char screen[WIN_H][WIN_W],int r, int c, char tile)
         screen[r][c]=tile;
     }
 }
-void render(char screen[WIN_H][WIN_W])
+void render(char screen[WIN_H][WIN_W],int nblines)
 {
     int i,j;
-    for (i=0; i<WIN_H; i++)
+    for (i=0; i<WIN_H && i < nblines; i++)
     {
-        for (j=0; j<WIN_W; j++)
+        for (j=0; j<WIN_W ; j++)
         {
             printf("%c", screen[i][j]);
         }
@@ -46,11 +43,28 @@ void clear_screen(char screen[WIN_H][WIN_W])
     return;
 }
 
+int clean_stdin()
+{
+    scanf ("%*[^\n]");
+    return 1;
+}
+
 char prompt_char()
 {
     char buffer[2];
     scanf ("%1s", buffer);
-    scanf ("%*[^\n]");
+    clean_stdin();
     getchar ();
     return buffer[0];
+}
+int promptUINT()
+{
+    int n = 0;
+    char c;
+    do
+    {
+        printf("\n: ");
+
+    } while (((scanf("%d%c", &n, &c)!=2 || c!='\n') && clean_stdin()) || n<1 );
+
 }
