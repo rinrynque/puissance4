@@ -7,12 +7,35 @@
 
 int main()
 {
+    printf("Bienvenue dans le Jeu\n");
     srand((unsigned)time(NULL));
     rand();rand();rand();rand();
+    getchar();
+
+    int choix = 0;
+    {
+        char c = ' ';
+        while(c != '1' && c != '2')
+        {
+            printf("Quelle variante souhaitez-vous jouer?\nVariante vue de dessus : 1\nVariante 3D : 2\n");
+            c = prompt_char();
+        }
+        if(c=='2')
+            choix |= TRIDIM;
+
+        c = ' ';
+        while(c != 'o' && c != 'n')
+        {
+            printf("Voulez-vous activer l\'option SEISME (o/n)?\n");
+            c = prompt_char();
+        }
+        if(c=='o')
+            choix |= EARTHQUAKE;
+
+    }
 
     s_jeu jeu;
-
-    j_init(&jeu,5, EARTHQUAKE);
+    j_init(&jeu,5, choix);
 
     int tour = 0;
     while(j_turn(&jeu,tour%2+1)!=-1)
