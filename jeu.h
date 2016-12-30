@@ -15,7 +15,7 @@
 #define EARTHQUAKE 1
 #define TRIDIM 2 /*Si ce flag n'est pas active, on utilise la variante vue de dessus*/
 
-#define COLLAPSE 1
+#define COLLAPSED 1
 #define PLAYED 2
 
 /*Fonctions pratiques*/
@@ -40,6 +40,7 @@ int j_turn(s_jeu* jeu, int player);
 
 int j_follow3D(s_jeu* jeu, int x, int y, int z, int dx, int dy, int dz, int piece);
 int j_check3D(s_jeu* jeu);
+int j_followUp(s_jeu* jeu, int x, int y, int dx, int dy, int piece);
 int j_checkUp(s_jeu* jeu);
 
 void j_earthQUAKE(s_jeu* jeu);

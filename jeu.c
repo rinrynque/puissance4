@@ -80,7 +80,7 @@ void j_draw_events(s_jeu* jeu)
     {
         for(j=0;j<jeu->n;j++)
         {
-            if(jeu->events[i][j] & COLLAPSE) /* Si le flag COLLAPSE est activé sur la case */
+            if(jeu->events[i][j] & COLLAPSED) /* Si le flag COLLAPSED est activé sur la case */
             {
 
                 drawchar(jeu->screen, i*3, j*3,   '*');
@@ -180,12 +180,12 @@ void j_earthQUAKE(s_jeu* jeu)
     {
         for(j=0;j<jeu->n;j++)
         {
-            jeu->events[i][j] &= ~COLLAPSE; /* Cette ligne permet de remettre le flag COLLAPSE à 0*/
+            jeu->events[i][j] &= ~COLLAPSED; /* Cette ligne permet de remettre le flag COLLAPSED à 0*/
             int h = jeu->board[i][j].it;
             if(h>0 && (rand()/(double)RAND_MAX) < 1.0-pow(2.0,-h/(2.0*jeu->n)))
             {
                 /*Effondrement*/
-                jeu->events[i][j] |= COLLAPSE; /* Cette ligne permet de remettre le flag COLLAPSE à 1*/
+                jeu->events[i][j] |= COLLAPSED; /* Cette ligne permet de remettre le flag COLLAPSED à 1*/
                 int k = rand()%h+1;
                 int ip;
                 for(ip = 0; ip<k;ip++)
@@ -240,6 +240,14 @@ int j_check3D(s_jeu* jeu)
                                     - 1 + j_follow3D(jeu,i,j,jeu->board[i][j].it-1,-dxs[k],-dys[k],-dzs[k], player);
                         if(align >= 4)
                         {
+                            clear_console();
+                            clear_screen(jeu->screen);
+                            j_draw_board(jeu);
+                            j_draw_events(jeu);
+                            render(jeu->screen);
+
+                            printf("Le joueur %d gagne !\n", player);
+                            getchar();
                             return player;
                         }
                     }
@@ -251,7 +259,71 @@ int j_check3D(s_jeu* jeu)
     }
     return 0; /* Il n'y a pas de vainqueur */
 }
+
+/*Les fonctions de verification de victoire en variante vue de dessus sont les mêmes que celles pour la variante 3d à quelques details pres*/
+int j_followUp(s_jeu* jeu, int x, int y, int dx, int dy, int piece)
+{
+    int length = 0;
+
+    while(x>=0 && y>=0
+          && x<jeu->n && y<jeu->n
+          && p_peak(&(jeu->board[x][y])) == piece)
+    {
+        length++;
+        x += dx;
+        y += dy;
+    }
+    return length;
+}
+
 int j_checkUp(s_jeu* jeu)
 {
-    return 0;
+    int i,j;
+    const int dxs[4]={1, 1, 0, -1};
+    const int dys[4]={0, 1, 1, 1};
+
+    int etat = 0;
+
+    for(i=0;i<jeu->n;i++)
+    {
+        for(j=0;j<jeu->n;j++)
+        {
+            if(jeu->events[i][j] & PLAYED || jeu->events[i][j] & COLLAPSED) /* Si le flag PLAYED ou le flag COLLAPSED est activé sur la case */
+            {
+                /*On doit partir dans 4 directions différentes, a chaque fois des deux côtés */
+
+                if(!p_isEmpty(&(jeu->board[i][j])))
+                {
+                    int player = p_peak(&(jeu->board[i][j]));
+                    int k;
+                    for(k=0;k<4;k++)
+                    {
+                        int align = j_followUp(jeu,i,j,dxs[k],dys[k], player)
+                                    - 1 + j_followUp(jeu,i,j,-dxs[k],-dys[k], player);
+                        if(align >= 4)
+                        {
+                            clear_console();
+                            clear_screen(jeu->screen);
+                            j_draw_board(jeu);
+                            j_draw_events(jeu);
+                            render(jeu->screen);
+                            printf("Le joueur %d gagne !\n", player);
+                            getchar();
+                            if (!etat)
+                            {
+                                etat = player;
+                            }
+                            else if (etat != player)
+                            {
+                                etat = 3;
+                            }
+                        }
+                    }
+                }
+
+                jeu->events[i][j] &= ~PLAYED; /* On a fait la verification, on enleve le flag */
+            }
+        }
+    }
+    return etat;
 }
