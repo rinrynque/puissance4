@@ -10,5 +10,6 @@ void render(char screen[WIN_H][WIN_W], int nblines); /* On veut juste afficher l
 void clear_screen(char screen[WIN_H][WIN_W]);
 
 char prompt_char();
+int promptUINT();
 
-#endif // CONSOLE_H_INCLUDED
+#endif /* CONSOLE_H_INCLUDED*/

@@ -20,4 +20,4 @@ int p_peak(Pile*);
 void p_disp(Pile*);
 
 
-#endif // PILE_H_INCLUDED
+#endif /* PILE_H_INCLUDED */

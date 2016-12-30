@@ -66,5 +66,5 @@ int promptUINT()
         printf("\n: ");
 
     } while (((scanf("%d%c", &n, &c)!=2 || c!='\n') && clean_stdin()) || n<1 );
-
+    return n;
 }

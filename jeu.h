@@ -47,4 +47,4 @@ int j_checkUp(s_jeu* jeu);
 
 void j_earthQUAKE(s_jeu* jeu);
 
-#endif // JEU_H_INCLUDED
+#endif /* JEU_H_INCLUDED */

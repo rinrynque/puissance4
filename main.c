@@ -19,7 +19,7 @@ int main()
 
     if( n*3 + 5>WIN_H || n*3 + 5 > WIN_W)
     {
-        printf("Attention ! La taille choisie est grande pour l\'affichage\nTout le plateau risque de ne pas etre visible.\nPlus d\informations dans le rapport.\n\n");
+        printf("Attention ! La taille choisie est grande pour l\'affichage\nTout le plateau risque de ne pas etre visible.\nPlus d\'informations dans le rapport.\n\n");
     }
 
     int choix = 0;
@@ -67,7 +67,7 @@ int main()
 
         if (check)
         {
-            printf("Bien joue ! \nContinuer (o/n)?\n", check);
+            printf("Bien joue ! \nContinuer (o/n)?\n");
             char c = ' ';
             while(c != 'o')
             {

@@ -44,7 +44,7 @@ void p_push(Pile* p, int e)
 *  @ensures : pop la pile*/
 int p_pop(Pile* p)
 {
-    return p->tab[--(p->it)]; //le dernier element de la pile est dans la case it-1, et on décrémente it
+    return p->tab[--(p->it)]; /* le dernier element de la pile est dans la case it-1, et on décrémente it */
 }
 
 /* @requires : pile* non vide
