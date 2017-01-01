@@ -1,15 +1,30 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
 #include "jeu.h"
 
 const char TILES[3] = " ox";
 
-int positive_modulo(int i, int n)
+/*
+@requires: i et n des entiers
+@assigns: -
+@ensures: retourne le résultat mathématiquement correct de l'operation i modulo n
+*/
+int positive_modulo(int i, unsigned int n)
 {
     return (i % n + n) % n;
 }
 
-void j_init(s_jeu* jeu, int n, unsigned int options)
+/* Jeu* signifie "pointeur vers une structure de type s_jeu" */
+/*
+@requires: un Jeu* jeu , n la taille du plateau voulu, les flags options des options voulues
+@assigns: les attributs de *jeu
+@ensures: *jeu est initialisé
+*/
+void j_init(s_jeu* jeu, unsigned int n, unsigned int options)
 {
-    int i,j;
+    unsigned int i,j;
     jeu->options = options;
     jeu->n = n;
     jeu->board = (Pile**) malloc(n * sizeof(Pile*));
@@ -27,7 +42,11 @@ void j_init(s_jeu* jeu, int n, unsigned int options)
     clear_screen(jeu->screen);
 }
 
-
+/*
+@requires: un Jeu*
+@assigns: jeu->board
+@ensures: libère la mémoire allouée pour jeu->board
+*/
 void j_quit(s_jeu* jeu)
 {
     int i;
@@ -40,6 +59,11 @@ void j_quit(s_jeu* jeu)
     jeu->board = NULL;
 }
 
+/*
+@requires: un Jeu* jeu
+@assigns: jeu->screen (par drawchar)
+@ensures: le terrain est dessiné dans le tableau jeu->screen pour un affichage ultérieur
+*/
 void j_draw_board(s_jeu* jeu)
 {
     int i,j;
@@ -58,7 +82,12 @@ void j_draw_board(s_jeu* jeu)
         drawchar(jeu->screen,jeu->n*3, i, '-');
 }
 
-void j_draw_pile(s_jeu* jeu, int r, int c)
+/*
+@requires: un Jeu* jeu, r (ligne), c (colonne) les coordonnées de la pile que l'on veut afficher
+@assigns: jeu->screen (par drawchar)
+@ensures: la pile aux coordonnées r,c  est dessinée dans le tableau jeu->screen pour un affichage ultérieur
+*/
+void j_draw_pile(s_jeu* jeu, const int r, const int c)
 {
     Pile* p = &(jeu->board[r][c]);
     int i;
@@ -72,7 +101,11 @@ void j_draw_pile(s_jeu* jeu, int r, int c)
         drawchar(jeu->screen,y-i-1,x+1,TILES[p->tab[i]]);
     }
 }
-
+/*
+@requires: un Jeu* jeu
+@assigns: jeu->screen (par drawchar) ( et jeu->events (retrait du flag ALIGNED (déboguage)) )
+@ensures: les événements indiqués dans jeu->events sont dessinés dans le tableau jeu->screen pour un affichage ultérieur
+*/
 void j_draw_events(s_jeu* jeu)
 {
     int i,j;
@@ -102,6 +135,12 @@ void j_draw_events(s_jeu* jeu)
         }
     }
 }
+
+/*
+@requires: un Jeu* jeu, r et c les coordonnées du curseur
+@assigns: jeu->screen (par drawchar)
+@ensures: un curseur est dessiné dans le tableau jeu->screen pour un affichage ultérieur
+*/
 void j_draw_cursor(s_jeu* jeu,int r, int c)
 {
         drawchar(jeu->screen, r*3,   c*3+1, '+');
@@ -110,7 +149,13 @@ void j_draw_cursor(s_jeu* jeu,int r, int c)
         drawchar(jeu->screen, r*3+2, c*3+1, '+');
 }
 
-int j_turn(s_jeu* jeu, int player)
+/*
+@requires: un Jeu* jeu, un entier player indiquant le joueur dont c'est le tour
+@assigns: jeu->screen (appels aux fonctions d'affichage), jeu->events (pour mettre à jour les emplacements joués
+          jeu->board (pose/retrait de pièces)
+@ensures: assure l'interaction avec le joueur et applique la décision choisie pour le tour
+*/
+int j_turn(s_jeu* jeu, const int player)
 {
     char in = ' ';
     int r = 0,c = 0;
@@ -192,6 +237,11 @@ int j_turn(s_jeu* jeu, int player)
     }
 }
 
+/*
+@requires: un Jeu* jeu
+@assigns: jeu->board (pour mettre à jour les piles écroulées) jeu->events pour marquer les piles ecroulées
+@ensures: applique les règles d'ecroulement de l'option seisme au plateau de jeu
+*/
 void j_earthQUAKE(s_jeu* jeu)
 {
     int i,j;
@@ -218,12 +268,17 @@ void j_earthQUAKE(s_jeu* jeu)
     }
 }
 
-int j_follow3D(s_jeu* jeu, int x, int y, int z, int dx, int dy, int dz, int piece)
+/*
+@requires: un Jeu* jeu, x,y,z des coordonnées sur le plateau, dx,dy,dz le deplacement sur les trois axes, piece le type de pièce à observer
+@assigns: -
+@ensures: retourne le nombre de pièces du type piece alignées à partir de (x,y,z) non inclus dans la direction indiquée par le vecteur (dx,dy,dz)
+*/
+int j_follow3D(s_jeu* jeu, const int xi, const int yi, const int zi, const int dx, const int dy, const int dz, const int piece)
 {
     int length = 0;
-    x += dx;
-    y += dy;
-    z += dz;
+    int x = xi + dx;
+    int y = yi + dy;
+    int z = zi + dz;
 
     while(x>=0 && y>=0 && z>=0
           && x<jeu->n && y<jeu->n
@@ -238,6 +293,11 @@ int j_follow3D(s_jeu* jeu, int x, int y, int z, int dx, int dy, int dz, int piec
     return length;
 }
 
+/*
+@requires: un Jeu* jeu
+@assigns: jeu->events, jeu->screen
+@ensures: vérifie si les conditions de victoire selon la variante 3D sont remplies par l'un ou l'autre des joueurs et retourne le résultat
+*/
 int j_check3D(s_jeu* jeu)
 {
     int i,j;
@@ -283,6 +343,12 @@ int j_check3D(s_jeu* jeu)
 }
 
 /*Les fonctions de verification de victoire en variante vue de dessus sont les mêmes que celles pour la variante 3d à quelques details pres*/
+
+/*
+@requires: un Jeu* jeu, x,y des coordonnées sur le plateau, dx,dy le deplacement sur les deux axes, piece le type de pièce à observer
+@assigns: -
+@ensures: retourne le nombre de pièces du type piece alignées sur le dessus des piles à partir de la pile en (x,y) non inclus dans la direction indiquée par le vecteur (dx,dy)
+*/
 int j_followUp(s_jeu* jeu, int x, int y, int dx, int dy, int piece)
 {
     int length = 0;
@@ -301,6 +367,11 @@ int j_followUp(s_jeu* jeu, int x, int y, int dx, int dy, int piece)
     return length;
 }
 
+/*
+@requires: un Jeu* jeu
+@assigns: jeu->events, jeu->screen
+@ensures: vérifie si les conditions de victoire selon la variante vue de dessus sont remplies par l'un ou l'autre des joueurs et retourne le résultat
+*/
 int j_checkUp(s_jeu* jeu)
 {
     int i,j;

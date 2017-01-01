@@ -15,7 +15,7 @@ int main()
     getchar();
     int n=0;
     printf(" Choisissez la taille du plateau");
-    n = promptUINT();
+    n = promptUInt();
 
     if( n*3 + 5>WIN_H || n*3 + 5 > WIN_W)
     {

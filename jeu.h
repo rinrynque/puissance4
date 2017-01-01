@@ -1,10 +1,6 @@
 #ifndef JEU_H_INCLUDED
 #define JEU_H_INCLUDED
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-
 #include "console.h"
 #include "pile.h"
 
@@ -20,7 +16,7 @@
 #define ALIGNED 4 /* Ce flag a servi a des fins de deboguage */
 
 /*Fonctions pratiques*/
-int positive_modulo(int i, int n);
+int positive_modulo(int i, unsigned int n);
 
 /*Jeu*/
 struct s_jeu
@@ -34,7 +30,7 @@ struct s_jeu
 
 typedef struct s_jeu s_jeu;
 
-void j_init(s_jeu* jeu, int n, unsigned int options);
+void j_init(s_jeu* jeu, unsigned int n, unsigned int options);
 void j_quit(s_jeu* jeu);
 void j_draw_board(s_jeu* jeu);
 int j_turn(s_jeu* jeu, int player);
