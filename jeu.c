@@ -4,7 +4,7 @@
 
 #include "jeu.h"
 
-const char TILES[3] = " ox";
+const char TILES[3] = " ox"; /* Ce tableau sert à stocker les pions utilisés selon le joueur */
 
 /*
 @requires: i et n des entiers
@@ -27,6 +27,8 @@ void j_init(s_jeu* jeu, unsigned int n, unsigned int options)
     unsigned int i,j;
     jeu->options = options;
     jeu->n = n;
+
+    /** Allocation des 2 tableaux n*n representant le plateau et stockant les événements des cases **/
     jeu->board = (Pile**) malloc(n * sizeof(Pile*));
     jeu->events = (int**) malloc(n * sizeof(int*));
     for (i=0; i<n; i++)
@@ -67,6 +69,7 @@ void j_quit(s_jeu* jeu)
 void j_draw_board(s_jeu* jeu)
 {
     int i,j;
+    /* On parcourt le plateau en dessinant le dessus des piles. */
     for(i=0;i<jeu->n;i++)
     {
         for(j=0;j<jeu->n;j++)
@@ -103,12 +106,13 @@ void j_draw_pile(s_jeu* jeu, const int r, const int c)
 }
 /*
 @requires: un Jeu* jeu
-@assigns: jeu->screen (par drawchar) ( et jeu->events (retrait du flag ALIGNED (déboguage)) )
+@assigns: jeu->screen (par drawchar) ( et jeu->events -retrait du flag ALIGNED (déboguage)- )
 @ensures: les événements indiqués dans jeu->events sont dessinés dans le tableau jeu->screen pour un affichage ultérieur
 */
 void j_draw_events(s_jeu* jeu)
 {
     int i,j;
+    /* Parcours du plateau, on regarde le tableau jeu->events*/
     for(i=0;i<jeu->n;i++)
     {
         for(j=0;j<jeu->n;j++)
@@ -159,9 +163,10 @@ int j_turn(s_jeu* jeu, const int player)
 {
     char in = ' ';
     int r = 0,c = 0;
-    int fallout = FALLOUT_TIME;
-    while(1)
+    int fallout = FALLOUT_TIME; /* Décompte le nombre de raffraîchissements que restent affiché les gravats des éboulements (séisme) */
+    while(1) /* La sortie se fait par le retour de fonction, quand l'utilisateur décide d'une action */
     {
+        /** On fait les affichages en début de boucle **/
         clear_console();
         clear_screen(jeu->screen);
         j_draw_board(jeu);
@@ -178,13 +183,13 @@ int j_turn(s_jeu* jeu, const int player)
 
         printf("C'est au tour du joueur %d (joue les %c) (h : afficher les commandes)\n", player, TILES[player]);
         in = prompt_char();
-        if(in=='p')
+        if(in=='p') /*Pose de piece*/
         {
             p_push(&(jeu->board[r][c]),player);
-            jeu->events[r][c] |= PLAYED;
+            jeu->events[r][c] |= PLAYED; /* On ajoute le flag PLAYED sur la case (sert à la verification de victoire */
             return 1;
         }
-        else if(in=='r')
+        else if(in=='r') /* Retrait de pièce */
         {
             if(p_isEmpty(&(jeu->board[r][c])))
             {
@@ -197,7 +202,7 @@ int j_turn(s_jeu* jeu, const int player)
                 jeu->events[r][c] |= PLAYED; /*On ajoute sur la case le flag PLAYED */
                 return 0;
             }
-        }
+        } /* Les différents mouvements */
         else if(in=='i')
         {
             r--;
@@ -214,7 +219,7 @@ int j_turn(s_jeu* jeu, const int player)
         {
             c++;
         }
-        else if(in=='h')
+        else if(in=='h') /* Affichage d'aide */
         {
             printf("\n");
             printf("   ^   \n");
@@ -228,7 +233,7 @@ int j_turn(s_jeu* jeu, const int player)
             printf("q : quitter :-(\n\n\n");
             getchar();
         }
-        else if(in=='q')
+        else if(in=='q') /* Quitter */
         {
             return -1;
         }
@@ -251,13 +256,13 @@ void j_earthQUAKE(s_jeu* jeu)
         {
             jeu->events[i][j] &= ~COLLAPSED; /* Cette ligne permet de remettre le flag COLLAPSED à 0*/
             int h = jeu->board[i][j].it;
-            if(h>0 && (rand()/(double)RAND_MAX) < 1.0-pow(2.0,-h/(2.0*jeu->n)))
+            if(h>0 && (rand()/(double)RAND_MAX) < 1.0-pow(2.0,-h/(2.0*jeu->n))) /* On applique la formule */
             {
                 /*Effondrement*/
                 jeu->events[i][j] |= COLLAPSED; /* Cette ligne permet de mettre le flag COLLAPSED à 1*/
                 int k = rand()%h+1;
                 int ip;
-                for(ip = 0; ip<k;ip++)
+                for(ip = 0; ip<k;ip++) /* On retire les k pièces du dessus */
                 {
                     p_pop(&(jeu->board[i][j]));
                 }
@@ -283,7 +288,7 @@ int j_follow3D(s_jeu* jeu, const int xi, const int yi, const int zi, const int d
     while(x>=0 && y>=0 && z>=0
           && x<jeu->n && y<jeu->n
           && z < jeu->board[x][y].it
-          && (jeu->board[x][y]).tab[z] == piece)
+          && (jeu->board[x][y]).tab[z] == piece) /* On suit la direction voulue en tant que les pièces existent et sont du type voulu */
     {
         length++;
         x += dx;
@@ -296,14 +301,18 @@ int j_follow3D(s_jeu* jeu, const int xi, const int yi, const int zi, const int d
 /*
 @requires: un Jeu* jeu
 @assigns: jeu->events, jeu->screen
-@ensures: vérifie si les conditions de victoire selon la variante 3D sont remplies par l'un ou l'autre des joueurs et retourne le résultat
+@ensures: vérifie si les conditions de victoire selon la variante 3D sont remplies par l'un ou l'autre des
+joueurs et retourne le résultat (0 si personne ne gagne, 1 ou 2 selon le gagnant sinon)
 */
 int j_check3D(s_jeu* jeu)
 {
     int i,j;
+    /** Ici sont des listes des directions dans lesquelles vérifier si des pieces sont alignées **/
     const int dxs[9]={1, 1, 0, -1, 0, 1, 1, 0, -1};
     const int dys[9]={0, 1, 1, 1,  0, 0, 1, 1,  1};
     const int dzs[9]={0, 0, 0, 0,  1, 1, 1, 1,  1};
+
+    /** Parcours de tout le plateau de jeu **/
     for(i=0;i<jeu->n;i++)
     {
         for(j=0;j<jeu->n;j++)
@@ -311,7 +320,6 @@ int j_check3D(s_jeu* jeu)
             if(jeu->events[i][j] & PLAYED) /* Si le flag PLAYED est activé sur la case */
             {
                 /*On doit partir dans 9 directions différentes, a chaque fois des deux côtés */
-
                 if(!p_isEmpty(&(jeu->board[i][j])))
                 {
                     int player = p_peak(&(jeu->board[i][j]));
@@ -322,6 +330,7 @@ int j_check3D(s_jeu* jeu)
                                     + 1 + j_follow3D(jeu,i,j,jeu->board[i][j].it-1,-dxs[k],-dys[k],-dzs[k], player);
                         if(align >= jeu->n)
                         {
+                            /* On réaffiche l'état actuel du jeu (fin de partie) */
                             clear_console();
                             clear_screen(jeu->screen);
                             j_draw_board(jeu);
@@ -358,7 +367,7 @@ int j_followUp(s_jeu* jeu, int x, int y, int dx, int dy, int piece)
     while(x>=0 && y>=0
           && x<jeu->n && y<jeu->n
           && !p_isEmpty(&(jeu->board[x][y]))
-          && p_peak(&(jeu->board[x][y])) == piece)
+          && p_peak(&(jeu->board[x][y])) == piece) /* On suit la direction voulue en tant que les pièces existent et sont du type voulu */
     {
         length++;
         x += dx;
@@ -370,16 +379,18 @@ int j_followUp(s_jeu* jeu, int x, int y, int dx, int dy, int piece)
 /*
 @requires: un Jeu* jeu
 @assigns: jeu->events, jeu->screen
-@ensures: vérifie si les conditions de victoire selon la variante vue de dessus sont remplies par l'un ou l'autre des joueurs et retourne le résultat
+@ensures: vérifie si les conditions de victoire selon la variante vue de dessus
+ sont remplies par l'un ou l'autre des joueurs et retourne le résultat (3 si les 2 joueurs ont gagné en même temps, 0 si personne ne gagne)
 */
 int j_checkUp(s_jeu* jeu)
 {
     int i,j;
+    /** Ici sont des listes des directions dans lesquelles vérifier si des pieces sont alignées **/
     const int dxs[4]={1, 1, 0, -1};
     const int dys[4]={0, 1, 1, 1};
 
     int etat = 0;
-
+    /** Parcours de tout le plateau de jeu **/
     for(i=0;i<jeu->n;i++)
     {
         for(j=0;j<jeu->n;j++)
@@ -400,17 +411,18 @@ int j_checkUp(s_jeu* jeu)
 
                         if(align >= jeu->n)
                         {
+                            /* On réaffiche l'état actuel du jeu (fin de partie) */
                             clear_console();
                             clear_screen(jeu->screen);
                             j_draw_board(jeu);
                             render(jeu->screen, jeu->n*3+2);
                             printf("Le joueur %d gagne !\n", player);
                             getchar();
-                            if (etat==0)
+                            if (etat==0) /* Equivalent à if(!etat) mais plus lisible : il n'y a pas déjà de gagne*/
                             {
                                 etat = player;
                             }
-                            else if (etat != player)
+                            else if (etat != player) /* Si l'autre joueur a déjà n pièces alignées, on renvoie 3 pour signifier que les 2 joueurs gagnent */
                             {
                                 etat = 3;
                             }

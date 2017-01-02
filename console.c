@@ -68,8 +68,8 @@ void clear_screen(char screen[WIN_H][WIN_W])
 */
 int clean_stdin()
 {
-    scanf ("%*[^\n]");
-    getchar ();
+    scanf ("%*[^\n]"); /* Regex vidant tous les caractères avant un \n*/
+    getchar (); /* Vide le \n */
     return 1;
 }
 /*
