@@ -5,7 +5,7 @@
 #include "pile.h"
 #include "jeu.h"
 
-int main(int argc, char** argv)
+int main()
 {
     printf("=======================\n");
     printf("=Bienvenue dans le Jeu=\n"); /* J'ai perdu */

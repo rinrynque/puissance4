@@ -1,16 +1,91 @@
 \documentclass[a4paper, titlepage]{article}
 
-\usepackage[latin1]{inputenc} % accents
+\usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}      % caractères français
 \usepackage{geometry}         % marges
 \usepackage[francais]{babel}  % langue
 \usepackage{graphicx}         % images
 \usepackage{verbatim}         % texte préformaté
+\usepackage{hyperref}
 
-\title{Rapport de projet d'IPI}      % renseigne le titre
-\author{Vianney Touchard}           %   "   "   l'auteur
-\date{pour le 3 janvier 2017}           %   "   "   la future date de parution
 \begin{document}
-LEL
+\begin{titlepage}
+	\centering
+	{\scshape\LARGE ENSIIE \par}
+	\vspace{1cm}
+	{\scshape\Large Initiation à la Programmation Impérative, Projet 2016\par}
+	\vspace{1.5cm}
+	{\huge\bfseries Morpion 3D\par}
+	\vspace{2cm}
+	{\Large\itshape Vianney Touchard\par}
+	\vfill
+
+% Bottom of the page
+	{\large Pour le 3 janvier 2017}
+\end{titlepage}
+
+
+\tableofcontents
+
+\section{Sujet}
+Le \href{http://www.ensiie.fr/~guillaume.burel/cours/IPI/projet_2016.html}{projet de programmation} du premier semestre à l'ENSIIE consiste à implémenter un morpion 3D (plutôt similaire à un puissance 4 d'ailleurs). 
+
+Le jeu se joue au tour par tour, en empilant des pions dans des piles sur un plateau carré de taille n*n choisie au début de partie. Le but du jeu est d'être le premier joueur à aligner n pièces. 
+
+Deux variantes sont jouables : la variante vue du dessus où le but est de former des lignes avec les dessus des piles, et la variante 3D où les pièces doivent être alignées dans l'espace.
+
+\section{Outils de développement}
+Par habitude, j'ai choisi de développer sous Windows avec l'IDE Code::Blocks et l'implémentation de gcc pour Windows MinGW. J'ai également eu recours à l'outil de gestion de versions Git et à l'hébergement gratuit github. Il est ainsi facile de tester le code de façon transparente sous Linux et Windows en utilisant les mêmes commandes (\texttt{git}, \texttt{make}, \texttt{gcc}).
+
+\section{Choix techniques}
+\subsection{Langue}
+La langue utilisée dans le code est l'anglais (pour avoir une homogénéité avec l'utilisation des fonctions standard qui sont nommées en anglais et en règle plus générale avec le monde de la programmation qui utilise plus communément cette langue). 
+
+Les commentaires sont en revanche écrits en Français (exception faite des \texttt{@requires}, \texttt{@assigns}, etc. imposés)
+
+\subsection{Modules}
+Dans le projet, les différentes déclarations et implémentations sont séparées dans des fichiers différents, qu'un makefile permet de compiler en une commande \texttt{make}.
+
+Le module \texttt{pile} avait été implémenté lors d'un TP durant le semestre et a été réusilisé tel quel.
+
+\subsection{La structure s\_jeu}
+Pour regrouper les variables de partie tout en permettant leur utilisation facilement au travers de plusieurs fonctions, j'ai décidé d'utiliser une structure \texttt{s\_jeu} qui ne sera instanciée qu'une seule fois pour une partie. Les fonctions associées requièrent systématiquement un pointeur vers une instance de cette structure.
+
+\subsection{Les préfixes}
+Par souci de lisibilité, ces fonctions sont préfixées (par le préfixe \texttt{j\_}). L'implémentation de la structure de pile suit également cette logique.
+
+\subsection{Les booléens}
+En C, le type \texttt{bool} est différemment implémenté (ou pas) selon les standards (\href{https://en.wikipedia.org/wiki/C_data_types#stdbool.h}{voire Wikipedia}). Ainsi, la solution choisie a été d'utiliser les entier pour cette utilisation (sachant que les tests \texttt{if(a!=0)} et \texttt{if(a)} sont équivalents)
+
+\section{Solutions apportées}
+\subsection{Le module console}
+La gestion de la partie et l'affichage sont gérés indépendamment. Pour simplifier ce dernier, j'ai eu recours à un tableau de symboles ASCII qui est modifié à volonté et ensuite affiché ligne par ligne en une seule fois. Cela permet de séparer les différentes fonctions de dessin et d'appeler un affichage à n'importe quel moment. Le module \texttt{console} apporte ces fonctions.
+
+Il apporte également les fonctions de saisie sécurisées pour demander à l'utilisateur un caractère ou un nombre. Celles-ci sont basées sur la description de l'utilisation de scanf avec des expressions régulières donnée \href{https://openclassrooms.com/courses/la-saisie-securisee-avec-scanf}{ici}.
+
+\subsection{Les flags}
+
+
+\subsection{Les tests de victoire}
+Les tests de victoire sont très similaires entre les variantes.
+
+Ils reposent sur une recherche dans toutes les directions possibles des pièces alignées à partir de certaines cases. D'abord à partir de toutes les cases, on peut ensuite optimiser.
+
+En effet,
+
+\subsection{L'aléatoire}
+L'autre problème rencontré était que lors de l'activation de l'option séisme, le premier tour voyait une pile s'écrouler à chaque test. La probabilité donnée par la formule ne correspondait pas à une fréquence si haute.
+
+Il s'est avéré que l'appel à \texttt{rand()}, même après qu'une graine ait été fournie par \texttt{srand(time(NULL))}. Après affichage des séquences de \texttt{rand()}, il s'est avéré que les premiers résultats étaient similaires. L'ajout de quelques appels non utilisés au début du programme semble avoir réglé le problème.
+
+\subsection{Le tableau events}
+L'affichage des éboulements aurait pu se faire lors de leur génération mais cette solution n'était pas satisfaisante parce que l'affichage devait se poursuivre ensuite durant le tour du joueur suivant.
+
+Pour garder en mémoire quelles piles se sont éboulées, j'ai créé un tableau \texttt{events} dans la structure \texttt{s\_jeu} qui marquait les piles touchées.
+
+Par la suite, comme les fonctions de détection demandaient de connaître où un pion avait été joué, j'ai rajouté cette information dans le tableau  grâce à un flag supplémentaire (cf précédemment). Un dernier flag a été rajouté pour déboguer \texttt{j\_checkUp}, qui codait les piles marquées commes alignées (le bogue était finalement un oubli du test de vacuité des piles observées)
+
+\section{Manuel d'utilisation}
+
+
 \end{document}
-                              
