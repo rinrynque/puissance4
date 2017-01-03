@@ -15,8 +15,7 @@
 #define PLAYED 2
 #define ALIGNED 4 /* Ce flag a servi a des fins de deboguage */
 
-/*Fonctions pratiques*/
-int positive_modulo(int i, unsigned int n);
+#define EUCMOD(a, b)  (a < 0 ? (((a % b) + b) % b) : (a % b)) /* Une fonction modulo correcte mathématiquement */
 
 /*Jeu*/
 struct s_jeu

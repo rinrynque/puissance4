@@ -6,15 +6,6 @@
 
 const char TILES[3] = " ox"; /* Ce tableau sert à stocker les pions utilisés selon le joueur */
 
-/*
-@requires: i et n des entiers
-@assigns: -
-@ensures: retourne le résultat mathématiquement correct de l'operation i modulo n
-*/
-int positive_modulo(int i, unsigned int n)
-{
-    return (i % n + n) % n;
-}
 
 /* Jeu* signifie "pointeur vers une structure de type s_jeu" */
 /*
@@ -183,8 +174,19 @@ int j_turn(s_jeu* jeu, const int player)
 
         printf("C'est au tour du joueur %d (joue les %c) (h : afficher les commandes)\n", player, TILES[player]);
         in = prompt_char();
+
+
+
         if(in=='p') /*Pose de piece*/
         {
+            p_push(&(jeu->board[r][c]),player);
+            jeu->events[r][c] |= PLAYED; /* On ajoute le flag PLAYED sur la case (sert à la verification de victoire */
+            return 1;
+        }
+        else if(in=='a') /*Jouer un coup aléatoire*/
+        {
+            r=rand()%jeu->n;
+            c=rand()%jeu->n;
             p_push(&(jeu->board[r][c]),player);
             jeu->events[r][c] |= PLAYED; /* On ajoute le flag PLAYED sur la case (sert à la verification de victoire */
             return 1;
@@ -230,6 +232,7 @@ int j_turn(s_jeu* jeu, const int player)
             printf("\n");
             printf("p : poser un jeton\n");
             printf("r : retirer un jeton\n");
+            printf("a : jouer un coup au hasard\n");
             printf("q : quitter :-(\n\n\n");
             getchar();
         }
@@ -237,8 +240,8 @@ int j_turn(s_jeu* jeu, const int player)
         {
             return -1;
         }
-        r = positive_modulo(r, jeu->n);
-        c = positive_modulo(c, jeu->n);
+        r = EUCMOD(r, jeu->n);
+        c = EUCMOD(c, jeu->n);
     }
 }
 
@@ -267,7 +270,6 @@ void j_earthQUAKE(s_jeu* jeu)
                     p_pop(&(jeu->board[i][j]));
                 }
                 printf("Une pile s'est effondree de %d etages!\n",k);
-                getchar(); /*Pour faire une pause*/
             }
         }
     }
@@ -290,6 +292,7 @@ int j_follow3D(s_jeu* jeu, const int xi, const int yi, const int zi, const int d
           && z < jeu->board[x][y].it
           && (jeu->board[x][y]).tab[z] == piece) /* On suit la direction voulue en tant que les pièces existent et sont du type voulu */
     {
+        /*jeu->events[x][y] |= ALIGNED;*/
         length++;
         x += dx;
         y += dy;
